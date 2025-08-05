@@ -135,8 +135,8 @@ class Transaction:
         """
         if not isinstance(amount, (int, float)):
             raise TypeError(f"{field_name} must be a number.")
-        if amount < 0:
-            raise ValueError(f"{field_name} must be a positive number.")
+        if amount == 0:
+            raise ValueError(f"{field_name} cannot be zero.")
         return amount
     
     def _validate_date(self, date: datetime) -> datetime:
@@ -228,3 +228,51 @@ class Transaction:
             int: Hash value of the transaction ID.
         """
         return hash(self.transaction_id)
+
+if __name__ == "__main__":
+    print("=== Running Transaction Tests ===")
+    from datetime import datetime
+
+    # 1. Valid transaction test
+    try:
+        txn1 = Transaction("TX001", datetime(2025, 8, 3), 200.0, "Food", "McDonalds", "Lunch", "Bank Account")
+        print("Valid transaction created successfully:")
+        print(txn1)
+        print("Dict format:", txn1.to_dict())
+    except Exception as e:
+        print("Failed to create valid transaction:", e)
+
+    # 2. Zero amount test
+    try:
+        txn2 = Transaction("TX002", datetime(2025, 8, 3), 0.0, "Bills", "Electric Co.")
+    except ValueError as e:
+        print("Correctly caught zero amount error:", e)
+
+    # 3. Empty transaction_id test
+    try:
+        txn3 = Transaction("", datetime(2025, 8, 3), 100.0, "Rent", "Landlord")
+    except ValueError as e:
+        print("Correctly caught empty transaction_id error:", e)
+
+    # 4. Test from_dict
+    txn_dict = {
+        "transaction_id": "TX004",
+        "date": "2025-08-04",
+        "amount": "$150.00",
+        "category": "Shopping",
+        "merchant": "Amazon",
+        "description": "Books",
+        "account_type": "Bank Account"
+    }
+    txn4 = Transaction.from_dict(txn_dict)
+    print("Transaction created from dict:")
+    print(txn4)
+
+    # 5. Comparison tests
+    txn5 = Transaction("TX005", datetime(2025, 7, 1), 50.0, "Transport", "Uber")
+    txn6 = Transaction("TX006", datetime(2025, 8, 1), 75.0, "Transport", "Lyft")
+    print("txn5 < txn6:", txn5 < txn6)
+    print("txn5 == txn6:", txn5 == txn6)
+    print("txn6 > txn5:", txn6 > txn5)
+
+    print("\n=== Transaction Tests Completed ===")
