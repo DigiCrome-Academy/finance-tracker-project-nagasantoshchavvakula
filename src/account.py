@@ -6,6 +6,9 @@ from transaction import Transaction
 class Account:
     """
     Represents a bank account that holds transactions and tracks the balance.
+    Args:
+        account_name (str): The name of the account.
+        account_type (str): The type of the account (e.g., "Bank Account", "Checking Account").
     """
     def __init__(self, account_name: str, account_type: str = "Bank Account"):
         self.account_name = self._validate_required(account_name, "Account Name")
@@ -69,6 +72,7 @@ class Account:
 class CheckingAccount(Account):
     """
     Represents a checking account with optional overdraft protection.
+    
     """
     def __init__(self, account_name: str, overdraft_limit: float = 0.0):
         super().__init__(account_name, account_type="Checking Account")
