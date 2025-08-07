@@ -11,7 +11,7 @@ class Transaction:
         amount (float): The amount of the transaction.
         category (str): The category of the transaction (e.g., 'Food', 'Utilities').
         merchant (str): The merchant involved in the transaction.
-        description (str): Optional description of the transaction.
+        description (str): Optional description of transaction.
         account_type (str): Type of account used for the transaction (e.g., 'Credit Card', 'Bank Account').
     """
     def __init__(self,transaction_id: str, date: datetime, amount: float, category: str, merchant: str, description: str = "", account_type: str = "Bank Account"):
