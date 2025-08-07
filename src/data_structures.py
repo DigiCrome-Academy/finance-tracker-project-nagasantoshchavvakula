@@ -23,7 +23,7 @@ def adding_category(categories: List[str], new_category: str) -> None:
 
 
 def removing_category(categories: List[str], category: str) -> None:
-    """Removes a category from the list if it exists.
+    """Removes a category from list if it exists.
 
     Args:
         categories (List[str]): List of existing categories.
