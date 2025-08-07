@@ -53,7 +53,7 @@ def capitalize_string(string:str)->str:
 def boolean_values(value1:bool,value2:bool)->bool:
     """
     logical AND operation on boolean values.
-    value1,value2 are two boolean values
+    value1, value2 are two boolean values
     """
     return value1 and value2
 
