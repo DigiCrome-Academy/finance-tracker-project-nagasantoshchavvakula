@@ -27,10 +27,6 @@ class FinancialAnalyzer:
         
         :return: A dictionary with average spending and total spending.
         """
-        # total_spending = np.sum(self.data)
-        # average_spending = np.mean(self.data)
-        # standard_deviation = np.std(self.data)
-        
         return {
             'total_spending': np.sum(self.data),
             'average_spending': np.mean(self.data),
@@ -130,30 +126,129 @@ class FinancialAnalyzer:
             return [0.0] * len(self.data)
         return (self.data - min_val) / (max_val - min_val)
     
+#-------------------------- Statistical Analysis ---------------------------------
+    def correlation_matrix(self,categories):
+        """        Calculate the correlation matrix for multiple categories of data.
+        :param categories: A dictionary where keys are category names and values are lists of numerical data
+        :return: A correlation matrix as a NumPy array.
+
+        """
+        data_matrix = np.array(list(categories.values()))
+        return np.corrcoef(data_matrix) 
+    
+    def calculate_percentiles(self):
+        """Calculate various percentiles of the data.
+        :return: A dictionary with 25th, 50th, 75th, 90th, and 95th percentiles.
+
+        """
+        return {
+            '25th_percentile': np.percentile(self.data, 25),
+            '50th_percentile': np.percentile(self.data, 50),
+            '75th_percentile': np.percentile(self.data, 75),
+            '90th_percentile': np.percentile(self.data, 90),
+            '95th_percentile': np.percentile(self.data, 95)
+        }
+    
+    def detect_outliers(self):
+        """Detect outliers in the data using the IQR method.
+        :return: A list of outliers.
+        """
+        q1 = np.percentile(self.data, 25)
+        q3 = np.percentile(self.data, 75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        
+        return [x for x in self.data if x < lower_bound or x > upper_bound]
+    
+    def time_series_analysis(self):
+        """
+        Perform time series analysis to detect seasonality and trends.
+        :return: A tuple indicating whether seasonality and trend are detected. 
+
+        """
+        differenced = np.diff(self.data)
+        seasonality_detected = np.std(differenced) > 0.1  # Example threshold for seasonality
+        trend_detected = np.std(differenced) > 0.1  # Example threshold for trend
+        return seasonality_detected, trend_detected
+    
+    def spending_recommendation(self,threshold_ratio=0.2):
+        """
+        Provide recommendations based on spending data.
+        :param threshold_ratio: The ratio of spending above which a recommendation is made.
+        :return: A list of recommendations based on spending patterns.
+        :rtype: list
+        :raises ValueError: If threshold_ratio is not between 0 and 1.
+
+        """
+        total = np.sum(self.data)
+        threshold = total * threshold_ratio
+        recommendations = []
+        for i, value in enumerate(self.data):
+            if value > threshold:
+                recommendations.append(f"Consider reducing spending in category {i+1} which is {value} (above threshold of {threshold})")
+        return recommendations if recommendations else ["No spending categories exceed the threshold."]
+    
 if __name__ == "__main__":
-    # Example usage
-    """
-    Example usage of the FinancialAnalyzer class.
-    """
-    data = [100, 150, 200, 250, 300, 350, 400]
+    # Create a FinancialAnalyzer instance with sample data
+    data = [100, 120, 110, 130, 140, 150, 160, 170, 180, 190]
     analyzer = FinancialAnalyzer(data)
-    
-    print("Moving Averages:", analyzer.calculate_moving_averages(window_size=3))
-    print("Spending Patterns:", analyzer.analyze_spending_patterns())
-    print("Projected Future Balance (6 months):", analyzer.project_future_balance(months_ahead=6))
-    
-    portfolio = {'stocks': 5000, 'bonds': 3000, 'real_estate': 2000}
+
+    # Calculate moving averages
+    print("Moving Averages:", analyzer.calculate_moving_averages(3))
+
+    # Spending recommendations
+    print("Spending Recommendations:", analyzer.spending_recommendation(threshold_ratio=0.1))
+
+    # Spending analysis
+    print("Spending Analysis:", analyzer.analyze_spending_patterns())
+
+    # Project future balance
+    print("Future Balance:", analyzer.project_future_balance(6))
+
+    # Portfolio metrics
+    portfolio = {'stocks': 1000, 'bonds': 500, 'real_estate': 1500}
     print("Portfolio Metrics:", analyzer.calculate_portfolio_metrics(portfolio))
-    
-    budget = 1000
-    priorities = {'rent': 5, 'food': 3, 'entertainment': 2}
+
+    # Budget allocation
+    budget = 2000
+    priorities = {'essentials': 0.5, 'savings': 0.3, 'entertainment': 0.2}
     print("Budget Allocation:", analyzer.optimize_budget_allocation(budget, priorities))
-    
-    other_data = [110, 160, 210, 260, 310, 360, 410]
+
+    # Correlation with another dataset
+    other_data = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     print("Correlation with other data:", analyzer.correlation_with(other_data))
-    
+
+    # Trend analysis
     print("Trend Analysis:", analyzer.trend_analysis())
+
+    # Normalized data
     print("Normalized Data:", analyzer.normalize_data())
+
+    # Correlation matrix between categories (as dictionary of lists)
+    categories = {
+        'food': [100, 120, 110],
+        'transport': [130, 140, 150],
+        'entertainment': [160, 170, 180]
+    }
+    print("Correlation Matrix:\n", analyzer.correlation_matrix(categories))
+
+    # Percentiles
+    print("Percentiles:", analyzer.calculate_percentiles())
+
+    # Detect outliers
+    print("Outliers:", analyzer.detect_outliers())
+
+    # Standard deviation (extracted from analyze_spending_patterns)
+    std_dev = analyzer.analyze_spending_patterns()['standard_deviation']
+    print("Standard Deviation:", std_dev)
+
+    # Time series analysis
+    print("Time Series Analysis:", analyzer.time_series_analysis())
+
+
+
+
 
     
 
