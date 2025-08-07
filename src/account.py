@@ -50,7 +50,7 @@ class Account:
 
     def get_monthly_summary(self, month: int, year: int) -> Dict[str, float]:
         """
-        Returns a summary of spending per category for a given month and year.
+        Returns summary of spending per category for a given month and year.
         """
         summary: Dict[str, float] = {}
         for txn in self.transaction_list:
