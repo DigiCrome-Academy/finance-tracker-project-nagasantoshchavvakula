@@ -1,0 +1,22 @@
+data_cleaning:
+  min_amount: 1.0
+  allowed_currencies: ["USD"]
+
+feature_engineering:
+  rolling_window: 7
+
+analysis:
+  top_n_categories: 5
+  # sample budget splits you may vary across experiments
+  budget_ratios:
+    groceries: 0.2
+    rent: 0.4
+    utilities: 0.05
+    entertainment: 0.05
+    transport: 0.05
+    health: 0.05
+    education: 0.05
+    investment: 0.15
+
+reporting:
+  include_plots: true
