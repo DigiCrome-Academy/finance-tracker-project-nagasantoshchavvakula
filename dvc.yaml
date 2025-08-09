@@ -1,9 +1,6 @@
 stages:
   data-cleaning:
-    cmd: python src/data_cleaning.py --input data/raw/transactions.csv \
-        --output data/processed/transactions_clean.csv \
-        --metrics metrics/data_quality.json \
-        --params params.yaml
+    cmd: python src/data_cleaning.py --input data/raw/transactions.csv --output data/processed/transactions_clean.csv --metrics metrics/data_quality.json --params params.yaml
     deps:
       - src/data_cleaning.py
       - data/raw/transactions.csv
@@ -16,8 +13,7 @@ stages:
       - metrics/data_quality.json
 
   feature-engineering:
-    cmd: python src/feature_engineering.py --input data/processed/transactions_clean.csv \
-        --output data/features/features.csv --params params.yaml
+    cmd: python src/feature_engineering.py --input data/processed/transactions_clean.csv --output data/features/features.csv --params params.yaml
     deps:
       - src/feature_engineering.py
       - data/processed/transactions_clean.csv
@@ -28,13 +24,7 @@ stages:
       - feature_engineering
 
   analysis:
-    cmd: python src/analysis.py --transactions data/features/features.csv \
-        --market data/raw/market_data.csv \
-        --budget data/raw/budget_data.json \
-        --spend_report data/analysis/spending_summary.csv \
-        --out_portfolio metrics/portfolio_performance.json \
-        --out_budget metrics/budget_adherence.json \
-        --params params.yaml
+    cmd: python src/analysis.py --transactions data/features/features.csv --market data/raw/market_data.csv --budget data/raw/budget_data.json --spend_report data/analysis/spending_summary.csv --out_portfolio metrics/portfolio_performance.json --out_budget metrics/budget_adherence.json --params params.yaml
     deps:
       - src/analysis.py
       - data/features/features.csv
@@ -49,26 +39,18 @@ stages:
       - metrics/portfolio_performance.json
       - metrics/budget_adherence.json
     plots:
-      - reports/plots/spend_by_category.png
-      - reports/plots/portfolio_returns.png
+      - reports/analysis_plots/spend_by_category.png
+      - reports/analysis_plots/portfolio_returns.png
 
   reporting:
-    cmd: python src/reporting.py --spend_report data/analysis/spending_summary.csv \
-        --portfolio_metrics metrics/portfolio_performance.json \
-        --budget_metrics metrics/budget_adherence.json \
-        --out_report reports/summary.md \
-        --out_plots_dir reports/plots
+    cmd: python src/reporting.py --spend_report data/analysis/spending_summary.csv --portfolio_metrics metrics/portfolio_performance.json --budget_metrics metrics/budget_adherence.json --out_report reports/summary.md --out_plots_dir reports/plots
     deps:
-      - src/reporting.py
       - data/analysis/spending_summary.csv
-      - metrics/portfolio_performance.json
       - metrics/budget_adherence.json
-      - params.yaml
-    outs:
-      - reports/summary.md
-      - reports/plots
+      - metrics/portfolio_performance.json
+      - src/reporting.py
     params:
       - reporting
-    plots:
-      - reports/plots/spend_by_category.png
-      - reports/plots/portfolio_returns.png
+    outs:
+      - reports/plots
+      - reports/summary.md

@@ -1,0 +1,42 @@
+{
+  "groceries": {
+    "budget": 500.0,
+    "actual": 9540.21,
+    "adherence_score": 0.0
+  },
+  "rent": {
+    "budget": 1500.0,
+    "actual": 8460.6,
+    "adherence_score": 0.0
+  },
+  "utilities": {
+    "budget": 200.0,
+    "actual": 7553.56,
+    "adherence_score": 0.0
+  },
+  "entertainment": {
+    "budget": 150.0,
+    "actual": 8823.66,
+    "adherence_score": 0.0
+  },
+  "transport": {
+    "budget": 100.0,
+    "actual": 8555.69,
+    "adherence_score": 0.0
+  },
+  "health": {
+    "budget": 100.0,
+    "actual": 9009.71,
+    "adherence_score": 0.0
+  },
+  "education": {
+    "budget": 200.0,
+    "actual": 8201.74,
+    "adherence_score": 0.0
+  },
+  "investment": {
+    "budget": 600.0,
+    "actual": 7490.58,
+    "adherence_score": 0.0
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "top_categories": {
+    "groceries": 9540.21,
+    "health": 9009.71,
+    "entertainment": 8823.66,
+    "transport": 8555.69,
+    "rent": 8460.6
+  },
+  "portfolio": {
+    "AAPL": {
+      "start_price": 103.46,
+      "end_price": 135.47,
+      "total_return": 0.30939493524067285
+    },
+    "GOOG": {
+      "start_price": 95.61,
+      "end_price": 113.23,
+      "total_return": 0.18429034619809648
+    },
+    "SPY": {
+      "start_price": 107.99,
+      "end_price": 123.16,
+      "total_return": 0.140475969997222
+    },
+    "TSLA": {
+      "start_price": 115.64,
+      "end_price": 27.7,
+      "total_return": -0.7604635074368731
+    }
+  }
+}

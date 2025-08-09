@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import argparse, os, json
+import argparse
+import os
+import json
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -54,7 +56,6 @@ def main():
         r.write(top.to_markdown() + "\n\n")
         r.write("## Budget adherence (sample)\n\n")
         # convert budgets to table
-        import pandas as pd
         bdf = pd.DataFrame.from_dict(budgets, orient="index")
         r.write(bdf.to_markdown() + "\n\n")
         r.write("## Plots\n\n")

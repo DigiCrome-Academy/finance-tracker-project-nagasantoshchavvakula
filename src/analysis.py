@@ -3,6 +3,7 @@ import argparse, os, json
 import pandas as pd
 import yaml
 import numpy as np
+import matplotlib.pyplot as plt
 
 def load_params(path="params.yaml"):
     """
@@ -85,6 +86,31 @@ def main():
     os.makedirs(os.path.dirname(args.out_budget), exist_ok=True)
     with open(args.out_budget, "w") as fh:
         json.dump(adherence, fh, indent=2)
+
+        # Create output directory for plots
+    plot_dir = "reports/analysis_plots"
+    os.makedirs(plot_dir, exist_ok=True)
+
+    # Plot: Spend by Category (bar chart of total spend per category)
+    spend_totals = df.groupby("category")["amount"].sum().abs().sort_values(ascending=False)
+    plt.figure(figsize=(8,6))
+    spend_totals.plot(kind="bar")
+    plt.title("Spend by Category")
+    plt.ylabel("Total Spend")
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, "spend_by_category.png"))
+    plt.close()
+
+    # Plot: Portfolio Returns (bar chart of total returns per symbol)
+    portfolio_returns = {sym: v["total_return"] for sym, v in compute_portfolio_metrics(market).items()}
+    plt.figure(figsize=(8,6))
+    pd.Series(portfolio_returns).plot(kind="bar", color="green")
+    plt.title("Portfolio Returns")
+    plt.ylabel("Total Return")
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, "portfolio_returns.png"))
+    plt.close()
+
 
     print("Analysis done. spend_report:", args.spend_report)
 
