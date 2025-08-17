@@ -93,17 +93,17 @@ def daily_transactions_flow():
 # Main: local run + deploy
 # ----------------------------
 
-# from prefect.infrastructure.process import Process
+
 
 if __name__ == "__main__":
     # Run flow locally (ad-hoc)
     daily_transactions_flow()
 
     # Deploy the flow with local infrastructure
-    daily_transactions_flow.deploy(
-        name="daily-transactions",
-        work_pool_name="local-pool",
-        cron="0 8 * * *",  # daily at 08:00 UTC
-        # infrastructure=Process()
-    )
+    # daily_transactions_flow.deploy(
+    #     name="daily-transactions",
+    #     work_pool_name="local-pool",
+    #     cron="0 8 * * *",  # daily at 08:00 UTC
+        
+    # )
 

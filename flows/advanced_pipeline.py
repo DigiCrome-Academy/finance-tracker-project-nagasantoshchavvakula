@@ -53,7 +53,7 @@ def data_quality_check(df: pd.DataFrame, min_rows: int = 50) -> Tuple[bool, str]
 @task(
     persist_result=True,
     # Cache by inputs' fingerprints so we skip recomputation when sources unchanged
-    cache_key_fn=lambda c, p: f"valuation:{p['tx_hash']}:{p['mkt_hash']}",
+    cache_key_fn=lambda c, p: f"valuation_{p['tx_hash']}_{p['mkt_hash']}",
     cache_expiration=timedelta(hours=12),
 )
 def compute_portfolio_valuation(
@@ -95,6 +95,11 @@ def compute_portfolio_valuation(
 def persist_portfolio(df: pd.DataFrame, out_path: Path = PORTFOLIO_OUT) -> str:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out_path, index=False)
+
+    # ensure datetime columns are JSON serializable
+    df = df.copy()
+    for col in df.select_dtypes(include=["datetime64[ns]", "datetimetz"]):
+        df[col] = df[col].astype(str)
     create_table_artifact(
         table=df.tail(10).to_dict(orient="list"),
         key="portfolio-tail",
@@ -156,8 +161,8 @@ def advanced_data_pipeline(
     budget = load_json.submit(budget_path)  # not used directly here, but demonstrates multi-source
 
     # Quality checks (will wait on futures as needed)
-    ok_tx, msg_tx = data_quality_check(tx_fut).result()
-    ok_mk, msg_mk = data_quality_check(mkt_fut).result()
+    ok_tx, msg_tx = data_quality_check(tx_fut)
+    ok_mk, msg_mk = data_quality_check(mkt_fut)
 
     if not ok_tx or not ok_mk:
         create_markdown_artifact(
@@ -201,45 +206,46 @@ def weekly_portfolio_analysis() -> str:
 
 @flow(name="monthly-budget-review", persist_result=True)
 def monthly_budget_review(budget_path: Path = BUDGET_PATH) -> str:
-    if not (PROCESSED_DIR / "transactions_enriched.parquet").exists():
+    tx_file = PROCESSED_DIR / "transactions_enriched.parquet"
+    if not tx_file.exists():
         return "no transactions yet"
-    tx = pd.read_parquet(PROCESSED_DIR / "transactions_enriched.parquet")
-    budget = json.loads(Path(budget_path).read_text())
+
+    tx = pd.read_parquet(tx_file)
+
+    # Extract only numeric budgets
+    budget_json = json.loads(Path(budget_path).read_text())
+    budget = budget_json.get("monthly_budgets", {})
+
     spent = tx[tx["amount"] < 0].groupby("category")["amount"].sum().abs()
-    rows = [{"category": k, "budget": float(budget.get(k, 0)), "spent": float(spent.get(k, 0))} for k in set(budget) | set(spent.index)]
+
+    rows = []
+    for k in set(budget) | set(spent.index):
+        try:
+            budget_val = float(budget.get(k, 0))
+        except (TypeError, ValueError):
+            budget_val = 0.0
+        spent_val = float(spent.get(k, 0))
+        rows.append({"category": k, "budget": budget_val, "spent": spent_val})
+
     create_table_artifact(table=rows, key="monthly-budget-review")
     return "ok"
+
 
 @flow(name="processed-data-backup", persist_result=True)
 def processed_data_backup() -> str:
     return backup_processed()
     
+# from prefect.deployments import Deployment
+# from prefect.server.schemas.schedules import CronSchedule
+
 if __name__ == "__main__":
     # Local ad-hoc run:
     advanced_data_pipeline()
 
-    # Programmatic deployments + schedules (works great in Prefect 3):
-    advanced_data_pipeline.deploy(
-        name="advanced-pipeline",
-        work_pool_name="local-pool",
-        cron="*/30 * * * *",          # every 30 minutes
-        timezone="America/New_York"
-    )
-    weekly_portfolio_analysis.deploy(
-        name="weekly-portfolio",
-        work_pool_name="local-pool",
-        cron="30 8 * * MON",          # Mondays 08:30
-        timezone="America/New_York",
-    )
-    monthly_budget_review.deploy(
-        name="monthly-budget",
-        work_pool_name="local-pool",
-        cron="0 9 1 * *",             # 1st of month 09:00
-        timezone="America/New_York",
-    )
-    processed_data_backup.deploy(
-        name="nightly-backup",
-        work_pool_name="local-pool",
-        cron="0 2 * * *",             # daily 02:00
-        timezone="America/New_York",
-    )
+    # You **cannot** deploy programmatically like Prefect 2.
+    # Instead, use the CLI or UI to schedule:
+    # Example CLI:
+    # prefect deployment create flows/advanced_pipeline.py:advanced_data_pipeline \
+    #   --name "advanced-pipeline" \
+    #   --work-pool local-pool \
+    #   --cron "*/30 * * * *"
