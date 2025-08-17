@@ -1,0 +1,158 @@
+schema: '2.0'
+stages:
+  data-cleaning:
+    cmd: python src/data_cleaning.py --input data/raw/transactions.csv --output 
+      data/processed/transactions_clean.csv --metrics metrics/data_quality.json 
+      --params params.yaml
+    deps:
+    - path: data/raw/transactions.csv
+      hash: md5
+      md5: c3cd9908b707e8609fbdd74f099ae5c6
+      size: 63583
+    - path: params.yaml
+      hash: md5
+      md5: e045f6fdcf5bf7d8357aa7621c825a6c
+      size: 421
+    - path: src/data_cleaning.py
+      hash: md5
+      md5: 60a73d6356bdc90a8fd7f9999eb7317f
+      size: 2778
+    params:
+      params.yaml:
+        data_cleaning:
+          min_amount: 1.0
+          allowed_currencies:
+          - USD
+    outs:
+    - path: data/processed/transactions_clean.csv
+      hash: md5
+      md5: c3ed49e917dfd44b780e41fa5436b94f
+      size: 62531
+    - path: metrics/data_quality.json
+      hash: md5
+      md5: 0a6d36bb9a3768b30cd248134c0fc618
+      size: 477
+  feature-engineering:
+    cmd: python src/feature_engineering.py --input 
+      data/processed/transactions_clean.csv --output data/features/features.csv 
+      --params params.yaml
+    deps:
+    - path: data/processed/transactions_clean.csv
+      hash: md5
+      md5: c3ed49e917dfd44b780e41fa5436b94f
+      size: 62531
+    - path: params.yaml
+      hash: md5
+      md5: e045f6fdcf5bf7d8357aa7621c825a6c
+      size: 421
+    - path: src/feature_engineering.py
+      hash: md5
+      md5: 057c314ee4ceff5678c1eae4ab1c5709
+      size: 1863
+    params:
+      params.yaml:
+        feature_engineering:
+          rolling_window: 7
+    outs:
+    - path: data/features/features.csv
+      hash: md5
+      md5: 6908dc2ce95686ae477c6182e0516c95
+      size: 126477
+  analysis:
+    cmd: python src/analysis.py --transactions data/features/features.csv 
+      --market data/raw/market_data.csv --budget data/raw/budget_data.json 
+      --spend_report data/analysis/spending_summary.csv --out_portfolio 
+      metrics/portfolio_performance.json --out_budget 
+      metrics/budget_adherence.json --params params.yaml
+    deps:
+    - path: data/features/features.csv
+      hash: md5
+      md5: 6908dc2ce95686ae477c6182e0516c95
+      size: 126477
+    - path: data/raw/budget_data.json
+      hash: md5
+      md5: daf493ad57a613e705c0579983b3c70b
+      size: 300
+    - path: data/raw/market_data.csv
+      hash: md5
+      md5: 15eb5d47f0374c69fc46701e799e2168
+      size: 67295
+    - path: params.yaml
+      hash: md5
+      md5: e045f6fdcf5bf7d8357aa7621c825a6c
+      size: 421
+    - path: src/analysis.py
+      hash: md5
+      md5: dcaf5fa86e2cbdfb2355e12b3e90f13a
+      size: 4565
+    params:
+      params.yaml:
+        analysis:
+          top_n_categories: 5
+          budget_ratios:
+            groceries: 0.2
+            rent: 0.4
+            utilities: 0.05
+            entertainment: 0.05
+            transport: 0.05
+            health: 0.05
+            education: 0.05
+            investment: 0.15
+    outs:
+    - path: data/analysis/spending_summary.csv
+      hash: md5
+      md5: 0530a6322bf9a22f8671f207dd0765e7
+      size: 5383
+    - path: metrics/budget_adherence.json
+      hash: md5
+      md5: 579cd0a38425d5db58f0779dd0bacb14
+      size: 784
+    - path: metrics/portfolio_performance.json
+      hash: md5
+      md5: d5f472d30eeebc26bcb9814f96d62ed4
+      size: 674
+    - path: reports/analysis_plots/portfolio_returns.png
+      hash: md5
+      md5: b86d968af92e318dfc217f7d2351c922
+      size: 14330
+    - path: reports/analysis_plots/spend_by_category.png
+      hash: md5
+      md5: 36a0e04597c11aa269fb05b93492a820
+      size: 22487
+  reporting:
+    cmd: python src/reporting.py --spend_report 
+      data/analysis/spending_summary.csv --portfolio_metrics 
+      metrics/portfolio_performance.json --budget_metrics 
+      metrics/budget_adherence.json --out_report reports/summary.md 
+      --out_plots_dir reports/plots
+    deps:
+    - path: data/analysis/spending_summary.csv
+      hash: md5
+      md5: 0530a6322bf9a22f8671f207dd0765e7
+      size: 5383
+    - path: metrics/budget_adherence.json
+      hash: md5
+      md5: 579cd0a38425d5db58f0779dd0bacb14
+      size: 784
+    - path: metrics/portfolio_performance.json
+      hash: md5
+      md5: d5f472d30eeebc26bcb9814f96d62ed4
+      size: 674
+    - path: src/reporting.py
+      hash: md5
+      md5: 311a7ad279c6c063454b904869c9ee3e
+      size: 2523
+    params:
+      params.yaml:
+        reporting:
+          include_plots: true
+    outs:
+    - path: reports/plots
+      hash: md5
+      md5: 43140937002664e231ca5fb2a4bb791c.dir
+      size: 31948
+      nfiles: 2
+    - path: reports/summary.md
+      hash: md5
+      md5: e112b897b3696ae2233efd4773af5424
+      size: 1183

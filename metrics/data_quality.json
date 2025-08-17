@@ -1,0 +1,25 @@
+{
+  "original_count": 1200,
+  "after_clean_count": 1180,
+  "duplicates_removed": 0,
+  "missing_before": {
+    "transaction_id": 0,
+    "user_id": 0,
+    "date": 0,
+    "amount": 0,
+    "category": 0,
+    "merchant": 0,
+    "currency": 0
+  },
+  "missing_after": {
+    "transaction_id": 0,
+    "user_id": 0,
+    "date": 0,
+    "amount": 0,
+    "category": 0,
+    "merchant": 0,
+    "currency": 0
+  },
+  "outlier_count": 64,
+  "min_amount_threshold": 1.0
+}

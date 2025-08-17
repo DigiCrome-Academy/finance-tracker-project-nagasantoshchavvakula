@@ -1,0 +1,56 @@
+stages:
+  data-cleaning:
+    cmd: python src/data_cleaning.py --input data/raw/transactions.csv --output data/processed/transactions_clean.csv --metrics metrics/data_quality.json --params params.yaml
+    deps:
+      - src/data_cleaning.py
+      - data/raw/transactions.csv
+      - params.yaml
+    outs:
+      - data/processed/transactions_clean.csv
+    params:
+      - data_cleaning
+    metrics:
+      - metrics/data_quality.json
+
+  feature-engineering:
+    cmd: python src/feature_engineering.py --input data/processed/transactions_clean.csv --output data/features/features.csv --params params.yaml
+    deps:
+      - src/feature_engineering.py
+      - data/processed/transactions_clean.csv
+      - params.yaml
+    outs:
+      - data/features/features.csv
+    params:
+      - feature_engineering
+
+  analysis:
+    cmd: python src/analysis.py --transactions data/features/features.csv --market data/raw/market_data.csv --budget data/raw/budget_data.json --spend_report data/analysis/spending_summary.csv --out_portfolio metrics/portfolio_performance.json --out_budget metrics/budget_adherence.json --params params.yaml
+    deps:
+      - src/analysis.py
+      - data/features/features.csv
+      - data/raw/market_data.csv
+      - data/raw/budget_data.json
+      - params.yaml
+    outs:
+      - data/analysis/spending_summary.csv
+    params:
+      - analysis
+    metrics:
+      - metrics/portfolio_performance.json
+      - metrics/budget_adherence.json
+    plots:
+      - reports/analysis_plots/spend_by_category.png
+      - reports/analysis_plots/portfolio_returns.png
+
+  reporting:
+    cmd: python src/reporting.py --spend_report data/analysis/spending_summary.csv --portfolio_metrics metrics/portfolio_performance.json --budget_metrics metrics/budget_adherence.json --out_report reports/summary.md --out_plots_dir reports/plots
+    deps:
+      - data/analysis/spending_summary.csv
+      - metrics/budget_adherence.json
+      - metrics/portfolio_performance.json
+      - src/reporting.py
+    params:
+      - reporting
+    outs:
+      - reports/plots
+      - reports/summary.md
